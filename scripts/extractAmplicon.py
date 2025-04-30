@@ -12,6 +12,7 @@ def extract_flanking_sequences(table_file, fasta_file, output_file):
         for line in f:
             if line.startswith('>'):
                 chrom = line.strip()[1:]
+                chrom = chrom[0:8]+"_"+chrom[-8::]
                 fasta_dict[chrom] = ''
             else:
                 fasta_dict[chrom] += line.strip()
@@ -26,10 +27,13 @@ def extract_flanking_sequences(table_file, fasta_file, output_file):
             # Extract the upstream and downstream sequences
             upstream_start = max(0, start - 100)
             downstream_stop = min(len(fasta_dict[chrom]), stop + 100)
-            outseq = fasta_dict[chrom][upstream_start:downstream_stop]
+            upstream_seq = fasta_dict[chrom][upstream_start:start].lower()
+            downstream_seq = fasta_dict[chrom][stop:downstream_stop].lower()
+            amplicon = fasta_dict[chrom][start:stop]
+            outseq = f'{upstream_seq}{amplicon}{downstream_seq}'
 
             # Write the results to the output file
-            f.write(f'>{chrom}_upstream_{upstream_start}_{downstream_stop}\n{outseq}\n')
+            f.write(f'>{chrom}!!AmpliconCoords={upstream_start}:{start}_{stop}:{downstream_stop}\n{outseq}\n\n')
 
 def main():
     parser = argparse.ArgumentParser(description='Extract flanking sequences from a FASTA file based on a table of coordinates.')
