@@ -52,11 +52,12 @@ def hash_fasta(input_file, output_file, mapping_file, hash_algorithm='sha256'):
             seq_hash = hashlib.new(hash_algorithm, seq.encode()).hexdigest()
             header_hash = hashlib.new(hash_algorithm, header.encode()).hexdigest()
             combined_hash = hashlib.new(hash_algorithm, (seq_hash + header_hash).encode()).hexdigest()
+            condensed_hash = combined_hash[0:8]+"_"+combined_hash[-8::]
             # Write the last sequence to the output file
             f_out.write(f'>{combined_hash}\n')
             f_out.write(seq + '\n')
             # Write the mapping to the mapping file
-            writer.writerow([header[1:], combined_hash, seq_hash])
+            writer.writerow([header[1:], combined_hash, condensed_hash])
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Hash FASTA sequences and generate a new FASTA file with the hash value as the header.')
